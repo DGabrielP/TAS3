@@ -1,0 +1,259 @@
+diego@diego-Inspiron-3543:~$ docker
+
+Usage:  docker [OPTIONS] COMMAND
+
+A self-sufficient runtime for containers
+
+Common Commands:
+  run         Create and run a new container from an image
+  exec        Execute a command in a running container
+  ps          List containers
+  build       Build an image from a Dockerfile
+  pull        Download an image from a registry
+  push        Upload an image to a registry
+  images      List images
+  login       Log in to a registry
+  logout      Log out from a registry
+  search      Search Docker Hub for images
+  version     Show the Docker version information
+  info        Display system-wide information
+
+Management Commands:
+  builder     Manage builds
+  container   Manage containers
+  context     Manage contexts
+  image       Manage images
+  manifest    Manage Docker image manifests and manifest lists
+  network     Manage networks
+  plugin      Manage plugins
+  system      Manage Docker
+  trust       Manage trust on Docker images
+  volume      Manage volumes
+
+Swarm Commands:
+  swarm       Manage Swarm
+
+Commands:
+  attach      Attach local standard input, output, and error streams to a running container
+  commit      Create a new image from a container's changes
+  cp          Copy files/folders between a container and the local filesystem
+  create      Create a new container
+  diff        Inspect changes to files or directories on a container's filesystem
+  events      Get real time events from the server
+  export      Export a container's filesystem as a tar archive
+  history     Show the history of an image
+  import      Import the contents from a tarball to create a filesystem image
+  inspect     Return low-level information on Docker objects
+  kill        Kill one or more running containers
+  load        Load an image from a tar archive or STDIN
+  logs        Fetch the logs of a container
+  pause       Pause all processes within one or more containers
+  port        List port mappings or a specific mapping for the container
+  rename      Rename a container
+  restart     Restart one or more containers
+  rm          Remove one or more containers
+  rmi         Remove one or more images
+  save        Save one or more images to a tar archive (streamed to STDOUT by default)
+  start       Start one or more stopped containers
+  stats       Display a live stream of container(s) resource usage statistics
+  stop        Stop one or more running containers
+  tag         Create a tag TARGET_IMAGE that refers to SOURCE_IMAGE
+  top         Display the running processes of a container
+  unpause     Unpause all processes within one or more containers
+  update      Update configuration of one or more containers
+  wait        Block until one or more containers stop, then print their exit codes
+
+Global Options:
+      --config string      Location of client config files (default
+                           "/home/diego/.docker")
+  -c, --context string     Name of the context to use to connect to the
+                           daemon (overrides DOCKER_HOST env var and
+                           default context set with "docker context use")
+  -D, --debug              Enable debug mode
+  -H, --host list          Daemon socket to connect to
+  -l, --log-level string   Set the logging level ("debug", "info",
+                           "warn", "error", "fatal") (default "info")
+      --tls                Use TLS; implied by --tlsverify
+      --tlscacert string   Trust certs signed only by this CA (default
+                           "/home/diego/.docker/ca.pem")
+      --tlscert string     Path to TLS certificate file (default
+                           "/home/diego/.docker/cert.pem")
+      --tlskey string      Path to TLS key file (default
+                           "/home/diego/.docker/key.pem")
+      --tlsverify          Use TLS and verify the remote
+  -v, --version            Print version information and quit
+
+Run 'docker COMMAND --help' for more information on a command.
+
+For more help on how to use Docker, head to https://docs.docker.com/go/guides/
+diego@diego-Inspiron-3543:~$ docker run --name server_db1 -e POSTGRES_PASSWORD=admin123 -d -p 5432:5432 postgres
+a1c9f6ab8f7eacd3c853086a71ecfd0e9e259aee98ee271a06f12924ffde4359
+docker: Error response from daemon: driver failed programming external connectivity on endpoint server_db1 (ad27fedcbbd334fc6b704d9b6b81efdcbae37eb7d607adb244a385bccb16a125): Error starting userland proxy: listen tcp4 0.0.0.0:5432: bind: address already in use.
+diego@diego-Inspiron-3543:~$ docker container ls -l
+CONTAINER ID   IMAGE      COMMAND                  CREATED         STATUS    PORTS     NAMES
+a1c9f6ab8f7e   postgres   "docker-entrypoint.s…"   2 minutes ago   Created             server_db1
+diego@diego-Inspiron-3543:~$ ^C
+diego@diego-Inspiron-3543:~$ docker start server_db1
+Error response from daemon: driver failed programming external connectivity on endpoint server_db1 (8fde5ec09577f279b213f5796bdaf08caeb61fe4a77b4ed9841f72b7ec62896f): Error starting userland proxy: listen tcp4 0.0.0.0:5432: bind: address already in use
+Error: failed to start containers: server_db1
+diego@diego-Inspiron-3543:~$ docker container ls -l
+CONTAINER ID   IMAGE      COMMAND                  CREATED             STATUS    PORTS     NAMES
+a1c9f6ab8f7e   postgres   "docker-entrypoint.s…"   About an hour ago   Created             server_db1
+diego@diego-Inspiron-3543:~$ docker ps
+CONTAINER ID   IMAGE     COMMAND   CREATED   STATUS    PORTS     NAMES
+diego@diego-Inspiron-3543:~$ docker start server_db1
+Error response from daemon: driver failed programming external connectivity on endpoint server_db1 (919157ecea5720ae1d778bd9e173376cd54e84b16434eda04bddf29065f4b298): Error starting userland proxy: listen tcp4 0.0.0.0:5432: bind: address already in use
+Error: failed to start containers: server_db1
+diego@diego-Inspiron-3543:~$ sudo lsof -i :5432
+[sudo] password for diego:           
+COMMAND   PID     USER   FD   TYPE DEVICE SIZE/OFF NODE NAME
+postgres 1378 postgres    6u  IPv4  13464      0t0  TCP localhost:postgresql (LISTEN)
+diego@diego-Inspiron-3543:~$ sudo systemctl stop postgresql
+diego@diego-Inspiron-3543:~$ sudo lsof -i :5432
+diego@diego-Inspiron-3543:~$ docker start server_db1
+server_db1
+diego@diego-Inspiron-3543:~$ docker exec -it server_db1 psql -U postgres -d test
+psql (17.4 (Debian 17.4-1.pgdg120+2))
+Type "help" for help.
+
+test=# SELECT * FROM customer;
+ERROR:  relation "customer" does not exist
+LINE 1: SELECT * FROM customer;
+                      ^
+test=# SELECT * FROM customer;
+ERROR:  relation "customer" does not exist
+LINE 1: SELECT * FROM customer;
+                      ^
+test=# SELECT * FROM customer;
+ERROR:  relation "customer" does not exist
+LINE 1: SELECT * FROM customer;
+                      ^
+test=# SHOW search_path;
+   search_path   
+-----------------
+ "$user", public
+(1 row)
+
+test=# SET search_path TO public;
+SET
+test=# SELECT * FROM customer;
+ERROR:  relation "customer" does not exist
+LINE 1: SELECT * FROM customer;
+                      ^
+test=# \d
+Did not find any relations.
+test=# 
+
+diego@diego-Inspiron-3543:~$ docker run --name server_db2 -e POSTGRES_PASSWORD=12345678 -d -p 5432:5432 postgres
+2667bf1448d7d9df8b6da702f63f6652bedc3b0fbcb95b998ff199e9ccbab41a
+docker: Error response from daemon: driver failed programming external connectivity on endpoint server_db2 (fa6903ff3a9bebf326ec84f0f6af0dd4e1edf2ba86e0d88b53570f757c9a9665): Bind for 0.0.0.0:5432 failed: port is already allocated.
+diego@diego-Inspiron-3543:~$ docker stop server_db2
+server_db2
+diego@diego-Inspiron-3543:~$ docker rm server_db2
+server_db2
+diego@diego-Inspiron-3543:~$ docker volume create pgdata
+pgdata
+diego@diego-Inspiron-3543:~$ docker run --name server_db2 \ -e POSTGRES_PASSWORD=12345678 \ -v pgdata:/var/lib/postgresql/data \ -p 5433:5432 \ -d postgres
+docker: invalid reference format.
+See 'docker run --help'.
+diego@diego-Inspiron-3543:~$ docker run --name server_db2 -e POSTGRES_PASSWORD=12345678 -v pgdata:/var/lib/postgresql/data -p 5433:5432 -d postgres
+a827b3cdebfcffd2a7bb8f03e4985ff05b3f1a3005e33751aae66617e3728c8c
+diego@diego-Inspiron-3543:~$ docker exec -it server_db2 bash
+root@a827b3cdebfc:/# CREATE DATABASE test;
+bash: CREATE: command not found
+root@a827b3cdebfc:/# psql -U postgres
+psql (17.4 (Debian 17.4-1.pgdg120+2))
+Type "help" for help.
+
+postgres=# CREATE DATABASE test;
+CREATE DATABASE
+postgres=# \l
+                                                    List of databases
+   Name    |  Owner   | Encoding | Locale Provider |  Collate   |   Ctype    | Locale | ICU Rules |   Access privileges   
+-----------+----------+----------+-----------------+------------+------------+--------+-----------+-----------------------
+ postgres  | postgres | UTF8     | libc            | en_US.utf8 | en_US.utf8 |        |           | 
+ template0 | postgres | UTF8     | libc            | en_US.utf8 | en_US.utf8 |        |           | =c/postgres          +
+           |          |          |                 |            |            |        |           | postgres=CTc/postgres
+ template1 | postgres | UTF8     | libc            | en_US.utf8 | en_US.utf8 |        |           | =c/postgres          +
+           |          |          |                 |            |            |        |           | postgres=CTc/postgres
+ test      | postgres | UTF8     | libc            | en_US.utf8 | en_US.utf8 |        |           | 
+(4 rows)
+
+postgres=# -d test
+postgres-# SELECT * FROM "customer";
+ERROR:  syntax error at or near "-"
+LINE 1: -d test
+        ^
+postgres=# -d test
+SELECT * FROM customer;
+ERROR:  syntax error at or near "-"
+LINE 1: -d test
+        ^
+postgres=# SELECT t.*
+             FROM public.customer t
+             LIMIT 501;
+ERROR:  relation "public.customer" does not exist
+LINE 2:              FROM public.customer t
+                          ^
+postgres=# SELECT t.*
+             FROM public.customer t;
+ERROR:  relation "public.customer" does not exist
+LINE 2:              FROM public.customer t;
+                          ^
+postgres=# \q
+root@a827b3cdebfc:/# psql -U postgres
+psql (17.4 (Debian 17.4-1.pgdg120+2))
+Type "help" for help.
+
+postgres=# /q
+postgres-# psql -U postgres -d test
+postgres-# \dt
+Did not find any relations.
+postgres-# SELECT * FROM customer;
+ERROR:  syntax error at or near "/"
+LINE 1: /q
+        ^
+postgres=# ^C
+postgres=# \q
+root@a827b3cdebfc:/# psql -U postgres -d test
+psql (17.4 (Debian 17.4-1.pgdg120+2))
+Type "help" for help.
+
+test=# SELECT * FROM customer;
+ id |     fullname     | status 
+----+------------------+--------
+  1 | Diego Pulgarin   | t
+  2 | Gabriel Pulgarin | f
+(2 rows)
+
+test=# \q
+root@a827b3cdebfc:/# \q
+bash: q: command not found
+root@a827b3cdebfc:/# docker stop server_db2
+docker rm server_db2
+bash: docker: command not found
+bash: docker: command not found
+root@a827b3cdebfc:/# exit
+exit
+diego@diego-Inspiron-3543:~$ docker stop server_db2
+docker rm server_db2
+server_db2
+server_db2
+diego@diego-Inspiron-3543:~$ docker container ls
+CONTAINER ID   IMAGE      COMMAND                  CREATED          STATUS          PORTS                                       NAMES
+6b3f4db4930f   postgres   "docker-entrypoint.s…"   55 minutes ago   Up 55 minutes   0.0.0.0:5432->5432/tcp, :::5432->5432/tcp   server_db1
+diego@diego-Inspiron-3543:~$ docker run --name server_db2 -e POSTGRES_PASSWORD=12345678 -v pgdata:/var/lib/postgresql/data -p 5433:5432 -d postgres
+a72b32a19073cddb3211aa20fd44097d68e67d17b3fafc7c4fa726ea17fd9958
+diego@diego-Inspiron-3543:~$ docker exec -it server_db2 psql -U postgres -d test
+psql (17.4 (Debian 17.4-1.pgdg120+2))
+Type "help" for help.
+
+test=# SELECT * FROM customer;
+ id |     fullname     | status 
+----+------------------+--------
+  1 | Diego Pulgarin   | t
+  2 | Gabriel Pulgarin | f
+(2 rows)
+
+test=# 
+
